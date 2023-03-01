@@ -42,7 +42,7 @@ The widget was only tested on following environment,
       "method": "POST",
       "statusCode": 200,
       "data": {}
-	},
+	}
   ]
   ```
   
