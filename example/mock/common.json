@@ -1,0 +1,20 @@
+[
+    {
+      "path": "/api/login",
+      "method": "POST",
+      "statusCode": 200,
+      "data": {
+        "success": true,
+        "code": "0000",
+        "result": {
+            "test": "test"
+        }
+      }
+    },
+    {
+      "path": "/api/logout",
+      "method": "POST",
+      "statusCode": 200,
+      "data": {}
+    }
+  ]
