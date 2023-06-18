@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.0.1 - 2023.6.18
+
+* Compatibility update for 6.0.0
+
 ## 1.0.0+1 - 2023.3.5
 
 * Add an example of usage.

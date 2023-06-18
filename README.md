@@ -10,14 +10,14 @@ This widget help you to mock backend responses in flutter project.
 
 The widget was only tested on following environment,
 * Flutter: Flutter 3.7.5 (with sound null safety)
-* Dio: Dio 5.0.0
+* Dio: Dio 5.0.0+
 
 # Usage
 
 * Install: 
   ```yaml
   dependencies:
-	dio_mock_interceptor: ^1.0.0
+	  dio_mock_interceptor: ^1.0.1
   ```
 
 * Create a <code>mock</code> folder in your project, add json files to mock http responses, 
@@ -25,31 +25,31 @@ The widget was only tested on following environment,
   
   ```json
   [
-	{
+	  {
       "path": "/api/login",
       "method": "POST",
       "statusCode": 200,
       "data": {
         "success": true,
         "code": "0000",
-		"result": {
-			"test": "test"
-		}
-	  }
-	},
-	{
+		    "result": {
+			    "test": "test"
+		    }
+	    }
+	  },
+	  {
       "path": "/api/logout",
       "method": "POST",
       "statusCode": 200,
       "data": {}
-	}
+	  }
   ]
   ```
   
 * Setup <code>mock</code> folder to <code>assets</code> section of <code>pubspec.yaml</code>: 
   ```yaml
-    assets:
-      - mock/
+  assets:
+    - mock/
   ```
 
 * Add interceptor to Dio:

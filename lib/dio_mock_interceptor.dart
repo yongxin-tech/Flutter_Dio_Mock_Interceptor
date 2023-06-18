@@ -46,7 +46,7 @@ class MockInterceptor extends Interceptor {
     Map<String, dynamic>? route = _routes[options.path];
 
     if (route == null) {
-      handler.reject(DioError(
+      handler.reject(DioException(
           requestOptions: options,
           error: "Can't find route setting: ${options.path}"));
       return;
@@ -54,7 +54,7 @@ class MockInterceptor extends Interceptor {
 
     String method = route['method'] as String;
     if (options.method != method) {
-      handler.reject(DioError(
+      handler.reject(DioException(
           requestOptions: options,
           error:
               "Can't find route setting: ${options.path}:${options.method}"));

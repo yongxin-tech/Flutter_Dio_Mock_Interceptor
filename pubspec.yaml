@@ -1,6 +1,6 @@
 name: dio_mock_interceptor
 description: This widget help you to mock backend responses in flutter project.
-version: 1.0.0+1
+version: 1.0.1
 homepage: https://github.com/yongxin-tech
 repository: https://github.com/yongxin-tech/Flutter_Dio_Mock_Interceptor
 
@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dio: ^5.0.0
+  dio: '>=5.0.0'
 
 dev_dependencies:
   flutter_test:
