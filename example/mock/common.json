@@ -16,5 +16,36 @@
       "method": "POST",
       "statusCode": 200,
       "data": {}
+    },
+    {
+      "path": "/api/template/list",
+      "method": "POST",
+      "statusCode": 200,
+      "template": {
+        "size": 100000,
+        "content": {
+          "id": "test${index}",
+          "name": "name_${index}"
+        }
+      }
+    },
+    {
+      "path": "/api/template/nocontent",
+      "method": "POST",
+      "statusCode": 200,
+      "template": {
+        "size": 1000
+      }
+    },
+    {
+      "path": "/api/template/nosize",
+      "method": "POST",
+      "statusCode": 200,
+      "template": {
+        "content": {
+          "id": "test${index}",
+          "name": "name_${index}"
+        }
+      }
     }
   ]

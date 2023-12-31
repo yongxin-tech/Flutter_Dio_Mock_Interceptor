@@ -16,7 +16,7 @@ class MockInterceptor extends Interceptor {
 
       List<String> mockResourcePaths = manifestMap.keys
           .where(
-              (String key) => key.startsWith('mock') && key.endsWith('.json'))
+              (String key) => key.contains('mock/') && key.endsWith('.json'))
           .toList();
       if (mockResourcePaths.isEmpty) {
         return;
@@ -61,13 +61,51 @@ class MockInterceptor extends Interceptor {
       return;
     }
 
-    Map<String, dynamic> data = route['data'] as Map<String, dynamic>;
     int statusCode = route['statusCode'] as int;
-    String jsonData = json.encode(data);
+
+    Map<String, dynamic>? template = route['template'];
+    if (template != null) {
+      String? templateData = _templateData(template);
+      handler.resolve(Response(
+        data: templateData,
+        requestOptions: options,
+        statusCode: statusCode,
+      ));
+      return;
+    }
+
+    Map<String, dynamic>? data = route['data'];
+    if (data != null) {
+      String jsonData = json.encode(data);
+      handler.resolve(Response(
+        data: jsonData,
+        requestOptions: options,
+        statusCode: statusCode,
+      ));
+      return;
+    }
+    
     handler.resolve(Response(
-      data: jsonData,
+      data: null,
       requestOptions: options,
       statusCode: statusCode,
     ));
+  }
+
+  String? _templateData(Map<String, dynamic> template) {
+    var content = template['content'];
+    if (content == null) {
+      return content;
+    }
+
+    int? size = template['size'];
+    if (size != null) {
+      String sContent = json.encode(content);
+      RegExp regexp = RegExp(r'\$\{index\}');
+      String joinString = List.generate(size, (index) => sContent.replaceAll(regexp, "$index"))
+        .join(",");
+      return "[$joinString]";
+    }
+    return json.encode(content);
   }
 }
