@@ -17,7 +17,7 @@ The widget was only tested on following environment,
 * Install: 
   ```yaml
   dev_dependencies:
-	  dio_mock_interceptor: ^1.1.0
+	  dio_mock_interceptor: ^1.2.0
   ```
 
 * Create a <code>mock</code> folder in your project, add json files to mock http responses, 
@@ -71,8 +71,23 @@ The widget was only tested on following environment,
   Map<String, dynamic> result = data['result']; // result['test'] = 'test'
   ```
 
-* Mass data example:
-```json
+* EL/req example:
+  ```json
+  [
+    {
+      "path": "/api/data/req-param",
+      "method": "POST",
+      "statusCode": 200,
+      "data": {
+        "id": "yong-xin",
+        "desc": "Hi, ${req.data.name}, I am ${req.data.name2}"
+      }
+    }
+  ]
+  ```
+
+* Template example:
+  ```json
   [
 	  {
       "path": "/api/template/list",
@@ -87,21 +102,65 @@ The widget was only tested on following environment,
       }
     },
     {
-      "path": "/api/template/nocontent",
+      "path": "/api/data/template",
       "method": "POST",
       "statusCode": 200,
+      "data": {
+        "id": "yong-xin",
+        "listA": "${template}"
+      },
       "template": {
-        "size": 1000
-      }
-    },
-    {
-      "path": "/api/template/nosize",
-      "method": "POST",
-      "statusCode": 200,
-      "template": {
+        "size": 1000,
         "content": {
           "id": "test${index}",
           "name": "name_${index}"
+        }
+      }
+    },
+    {
+      "path": "/api/data/template2",
+      "method": "POST",
+      "statusCode": 200,
+      "data": {
+        "id": "yong-xin",
+        "listA": "${template}",
+        "field2": {
+          "listB": "${template}"
+        }
+      },
+      "template": {
+        "size": 1000,
+        "content": {
+          "id": "test${index}",
+          "name": "name_${index}"
+        }
+      }
+    },
+    {
+      "path": "/api/data/templates",
+      "method": "POST",
+      "statusCode": 200,
+      "data": {
+        "id": "yong-xin",
+        "listA": "${templates.name1}",
+        "field": {
+          "listB": "${templates.name2}"
+        }
+      },
+      "templates": {
+        "name1": {
+          "size": 1000,
+          "content": {
+            "id": "test${index}",
+            "name": "name_${index}"
+          }
+        },
+        "name2": {
+          "size": 10,
+          "content": {
+            "id": "test2${index}",
+            "name": "name2_${index}"
+          }
         }
       }
     }

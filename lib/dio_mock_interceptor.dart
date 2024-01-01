@@ -8,6 +8,8 @@ class MockInterceptor extends Interceptor {
   late Future _futureManifestLoaded;
   final List<Future> _futuresBundleLoaded = [];
   final Map<String, Map<String, dynamic>> _routes = {};
+  final RegExp _regexpIndex = RegExp(r'\$\{index\}');
+  final RegExp _regexpTemplate = RegExp(r'"\$\{template\}"');
 
   MockInterceptor() {
     _futureManifestLoaded =
@@ -15,8 +17,7 @@ class MockInterceptor extends Interceptor {
       Map<String, dynamic> manifestMap = json.decode(manifestContent);
 
       List<String> mockResourcePaths = manifestMap.keys
-          .where(
-              (String key) => key.contains('mock/') && key.endsWith('.json'))
+          .where((String key) => key.contains('mock/') && key.endsWith('.json'))
           .toList();
       if (mockResourcePaths.isEmpty) {
         return;
@@ -63,30 +64,43 @@ class MockInterceptor extends Interceptor {
 
     int statusCode = route['statusCode'] as int;
 
+    String? resData;
     Map<String, dynamic>? template = route['template'];
-    if (template != null) {
-      String? templateData = _templateData(template);
-      handler.resolve(Response(
-        data: templateData,
-        requestOptions: options,
-        statusCode: statusCode,
-      ));
-      return;
-    }
 
     Map<String, dynamic>? data = route['data'];
-    if (data != null) {
-      String jsonData = json.encode(data);
-      handler.resolve(Response(
-        data: jsonData,
-        requestOptions: options,
-        statusCode: statusCode,
-      ));
-      return;
+
+    if (template != null && data == null) {
+      resData = _templateData(template);
+    } else if (data != null) {
+      resData = json.encode(data);
+
+      dynamic opData = options.data;
+      if (opData != null && opData is Map) {
+        for (var entry in opData.entries) {
+          RegExp regexpReqData = RegExp(r'\$\{req\.data\.' + entry.key + '\}');
+          resData = resData?.replaceAll(regexpReqData, entry.value.toString());
+        }
+      }
+
+      if (template != null) {
+        String tData = _templateData(template)!;
+        resData = resData?.replaceAll(_regexpTemplate, tData);
+      }
+
+      Map<String, dynamic>? templates = route['templates'];
+      if (templates != null) {
+        for (var entry in templates.entries) {
+          Map<String, dynamic> template = entry.value;
+          String tData = _templateData(template)!;
+          RegExp regexpTemplate =
+              RegExp(r'"\$\{templates\.' + entry.key + '\}"');
+          resData = resData?.replaceAll(regexpTemplate, tData);
+        }
+      }
     }
-    
+
     handler.resolve(Response(
-      data: null,
+      data: resData,
       requestOptions: options,
       statusCode: statusCode,
     ));
@@ -99,13 +113,13 @@ class MockInterceptor extends Interceptor {
     }
 
     int? size = template['size'];
-    if (size != null) {
-      String sContent = json.encode(content);
-      RegExp regexp = RegExp(r'\$\{index\}');
-      String joinString = List.generate(size, (index) => sContent.replaceAll(regexp, "$index"))
-        .join(",");
-      return "[$joinString]";
+    String sContent = json.encode(content);
+    if (size == null) {
+      return sContent.replaceAll(_regexpIndex, "0");
     }
-    return json.encode(content);
+
+    String joinString = List.generate(
+        size, (index) => sContent.replaceAll(_regexpIndex, "$index")).join(",");
+    return "[$joinString]";
   }
 }

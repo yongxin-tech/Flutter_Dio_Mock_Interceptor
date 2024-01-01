@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.2.0 - 2024.01.01
+
+* Extend template usage
+* Simple EL, ex: ${req.data}、${template}、${templates}
+
 ## 1.1.0 - 2023.12.31
 
 * Mass data support
