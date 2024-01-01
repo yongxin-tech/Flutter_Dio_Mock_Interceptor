@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.3.0 - 2024.01.01
+
+* increase dart support version to 4.0.0
+
 ## 1.2.0 - 2024.01.01
 
 * Extend template usage

@@ -17,7 +17,7 @@ The widget was only tested on following environment,
 * Install: 
   ```yaml
   dev_dependencies:
-	  dio_mock_interceptor: ^1.2.0
+	  dio_mock_interceptor: ^1.3.0
   ```
 
 * Create a <code>mock</code> folder in your project, add json files to mock http responses, 
