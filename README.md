@@ -17,7 +17,7 @@ The widget was only tested on following environment,
 * Install: 
   ```yaml
   dev_dependencies:
-	  dio_mock_interceptor: ^1.3.0
+	  dio_mock_interceptor: ^1.4.0
   ```
 
 * Create a <code>mock</code> folder in your project, add json files to mock http responses, 
@@ -152,6 +152,54 @@ The widget was only tested on following environment,
           "size": 1000,
           "content": {
             "id": "test${index}",
+            "name": "name_${index}"
+          }
+        },
+        "name2": {
+          "size": 10,
+          "content": {
+            "id": "test2${index}",
+            "name": "name2_${index}"
+          }
+        }
+      }
+    }
+  ]
+  ```
+
+* Vars example:
+  ```json
+  [
+	  {
+      "path": "/api/data/vars",
+      "method": "POST",
+      "statusCode": 200,
+      "data": {
+        "id": "yong-xin",
+        "listA": "${templates.name1}",
+        "field": {
+          "listB": "${templates.name2}"
+        },
+        "arry": "${groups}",
+        "objA": "${obj}"
+      },
+      "vars": {
+        "n": 5,
+        "groups": [
+          "May",
+          "YongXin",
+          "John"
+        ],
+        "obj": {
+          "name": "objName"
+        }
+      },
+      "templates": {
+        "name1": {
+          "size": 1000,
+          "content": {
+            "id": "test${index}",
+            "group": "g_${groups.elementAt(index%3)}",
             "name": "name_${index}"
           }
         },

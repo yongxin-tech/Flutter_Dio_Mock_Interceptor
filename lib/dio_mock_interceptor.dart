@@ -3,6 +3,7 @@ library dio_mock_interceptor;
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
+import 'package:template_expressions/template_expressions.dart';
 
 class MockInterceptor extends Interceptor {
   late Future _futureManifestLoaded;
@@ -10,6 +11,7 @@ class MockInterceptor extends Interceptor {
   final Map<String, Map<String, dynamic>> _routes = {};
   final RegExp _regexpIndex = RegExp(r'\$\{index\}');
   final RegExp _regexpTemplate = RegExp(r'"\$\{template\}"');
+  static const StandardExpressionSyntax _exSyntax = StandardExpressionSyntax();
 
   MockInterceptor() {
     _futureManifestLoaded =
@@ -66,11 +68,18 @@ class MockInterceptor extends Interceptor {
 
     String? resData;
     Map<String, dynamic>? template = route['template'];
-
+    Map<String, dynamic>? vars = route['vars'];
     Map<String, dynamic>? data = route['data'];
 
+    var exContext = {
+    };
+
+    if (vars != null) {
+      exContext.addAll(vars);
+    }
+    
     if (template != null && data == null) {
-      resData = _templateData(template);
+      resData = _templateData(template, exContext);
     } else if (data != null) {
       resData = json.encode(data);
 
@@ -83,7 +92,7 @@ class MockInterceptor extends Interceptor {
       }
 
       if (template != null) {
-        String tData = _templateData(template)!;
+        String tData = _templateData(template, exContext)!;
         resData = resData?.replaceAll(_regexpTemplate, tData);
       }
 
@@ -91,11 +100,27 @@ class MockInterceptor extends Interceptor {
       if (templates != null) {
         for (var entry in templates.entries) {
           Map<String, dynamic> template = entry.value;
-          String tData = _templateData(template)!;
+          String tData = _templateData(template, exContext)!;
           RegExp regexpTemplate =
               RegExp(r'"\$\{templates\.' + entry.key + '\}"');
           resData = resData?.replaceAll(regexpTemplate, tData);
         }
+      }
+
+      if (vars != null) {
+        vars.entries.forEach((element) {
+            var vKey = element.key;
+            var vValue = element.value;
+            if (vValue is Iterable || vValue is Map) {
+              resData = resData?.replaceAll(RegExp(r'"\$\{' + vKey + '\}"'), json.encode(vValue));
+            }
+        });
+
+        var exTemplate = Template(
+          syntax: [_exSyntax],
+          value: resData!,
+        );
+        resData = exTemplate.process(context: exContext);
       }
     }
 
@@ -106,7 +131,7 @@ class MockInterceptor extends Interceptor {
     ));
   }
 
-  String? _templateData(Map<String, dynamic> template) {
+  String? _templateData(Map<String, dynamic> template, Map<dynamic, dynamic> exContext) {
     var content = template['content'];
     if (content == null) {
       return content;
@@ -114,12 +139,23 @@ class MockInterceptor extends Interceptor {
 
     int? size = template['size'];
     String sContent = json.encode(content);
+
+    var exTemplate = Template(
+      syntax: [_exSyntax],
+      value: sContent,
+    );
+
     if (size == null) {
-      return sContent.replaceAll(_regexpIndex, "0");
+      exContext.addAll({
+        'index': 0,
+      });
+      return exTemplate.process(context: exContext);
     }
 
-    String joinString = List.generate(
-        size, (index) => sContent.replaceAll(_regexpIndex, "$index")).join(",");
+    String joinString = List.generate(size, (index) {
+      exContext.addAll({'index': index});
+      return exTemplate.process(context: exContext);
+    }).join(",");
     return "[$joinString]";
   }
 }

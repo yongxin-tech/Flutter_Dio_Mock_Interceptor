@@ -1,8 +1,12 @@
 # CHANGELOG
 
+## 1.4.0 - 2024.01.24
+
+* Simply support variable
+
 ## 1.3.0 - 2024.01.01
 
-* increase dart support version to 4.0.0
+* Increase dart support version to 4.0.0
 
 ## 1.2.0 - 2024.01.01
 

@@ -119,5 +119,47 @@
       "id": "yong-xin",
       "desc": "Hi, ${req.data.name}, I am ${req.data.name2}"
     }
+  },
+  {
+    "path": "/api/data/vars",
+    "method": "POST",
+    "statusCode": 200,
+    "data": {
+      "id": "yong-xin",
+      "listA": "${templates.name1}",
+      "field": {
+        "listB": "${templates.name2}"
+      },
+      "arry": "${groups}",
+      "objA": "${obj}"
+    },
+    "vars": {
+      "n": 5,
+      "groups": [
+        "May",
+        "YongXin",
+        "John"
+      ],
+      "obj": {
+        "name": "objName"
+      }
+    },
+    "templates": {
+      "name1": {
+        "size": 1000,
+        "content": {
+          "id": "test${index}",
+          "group": "g_${groups.elementAt(index%3)}",
+          "name": "name_${index}"
+        }
+      },
+      "name2": {
+        "size": 10,
+        "content": {
+          "id": "test2${index}",
+          "name": "name2_${index}"
+        }
+      }
+    }
   }
 ]

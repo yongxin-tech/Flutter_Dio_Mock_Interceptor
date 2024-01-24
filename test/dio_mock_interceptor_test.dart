@@ -103,4 +103,28 @@ void main() async {
     expect(data['id'], 'yong-xin');
     expect(data['desc'], 'Hi, Mercury, I am Ming');
   });
+
+  test('test template with vars', () async {
+    Response response = await dio.post("/api/data/vars");
+    String json = response.data;
+    Map<String, dynamic> data = jsonDecode(json);
+
+    expect(data['id'], 'yong-xin');
+    expect(data['arry'], [
+      "May",
+      "YongXin",
+      "John"
+    ]);
+    expect(data['objA'], {
+      "name": "objName"
+    });
+    expect((data['listA'] as List).first['id'], 'test0');
+    expect((data['listA'] as List).first['name'], 'name_0');
+    expect((data['listA'] as List).first['group'], 'g_May');
+    expect((data['listA'] as List).elementAt(1)['group'], 'g_YongXin');
+    expect((data['listA'] as List).elementAt(2)['group'], 'g_John');
+    expect((data['listA'] as List).last['group'], 'g_May');
+    expect((data['field']['listB'] as List).first['id'], 'test20');
+    expect((data['field']['listB'] as List).first['name'], 'name2_0');
+  });
 }
