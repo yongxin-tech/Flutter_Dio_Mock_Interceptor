@@ -9,7 +9,7 @@ void main() async {
   dio.interceptors.add(MockInterceptor());
 
   Response response =
-      await dio.post("/api/login"); // the same path as common.json
+      await dio.post("/api/basic/data"); // the same path as common.json
   String json = response.data;
   if (json.isEmpty) {
     throw Exception('response is empty');

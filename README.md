@@ -17,7 +17,7 @@ The widget was only tested on following environment,
 * Install: 
   ```yaml
   dev_dependencies:
-	  dio_mock_interceptor: ^2.0.0
+	  dio_mock_interceptor: ^2.0.0+1
   ```
 
 * Create a <code>mock</code> folder in your project, add json files to mock http responses, 
@@ -61,7 +61,7 @@ The widget was only tested on following environment,
 
 * Dio post example:
   ```flutter
-  Response response = await dio.post("/api/login");
+  Response response = await dio.post("/api/basic/data");
   String json = response.data;
   if (json.isEmpty) {
     throw Exception('response is empty');

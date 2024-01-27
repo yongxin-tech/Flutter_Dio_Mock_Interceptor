@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.0.0+1 - 2024.01.27
+
+* Refine examples and docs
+
 ## 2.0.0 - 2024.01.27
 
 * Code refactoring and use template_expressions library to support req、vars expressions
