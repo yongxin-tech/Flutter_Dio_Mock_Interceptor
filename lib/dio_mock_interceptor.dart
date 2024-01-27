@@ -9,7 +9,6 @@ class MockInterceptor extends Interceptor {
   late Future _futureManifestLoaded;
   final List<Future> _futuresBundleLoaded = [];
   final Map<String, Map<String, dynamic>> _routes = {};
-  final RegExp _regexpIndex = RegExp(r'\$\{index\}');
   final RegExp _regexpTemplate = RegExp(r'"\$\{template\}"');
   static const StandardExpressionSyntax _exSyntax = StandardExpressionSyntax();
 
@@ -66,63 +65,77 @@ class MockInterceptor extends Interceptor {
 
     int statusCode = route['statusCode'] as int;
 
-    String? resData;
     Map<String, dynamic>? template = route['template'];
-    Map<String, dynamic>? vars = route['vars'];
     Map<String, dynamic>? data = route['data'];
 
-    var exContext = {
-    };
-
-    if (vars != null) {
-      exContext.addAll(vars);
+    if (template == null && data == null) {
+      handler.resolve(Response(
+        requestOptions: options,
+        statusCode: statusCode,
+      ));
+      return;
     }
-    
+
+    Map<String, dynamic>? vars = route['vars'];
+    var exContext = vars ?? {};
+
+    exContext.putIfAbsent(
+        'req',
+        () => {
+              'headers': options.headers,
+            });
+
+    if (options.data != null && options.data is Map) {
+      exContext.update('req', (value) {
+        value['data'] = options.data;
+        return value;
+      });
+    }
+
     if (template != null && data == null) {
-      resData = _templateData(template, exContext);
-    } else if (data != null) {
-      resData = json.encode(data);
-
-      dynamic opData = options.data;
-      if (opData != null && opData is Map) {
-        for (var entry in opData.entries) {
-          RegExp regexpReqData = RegExp(r'\$\{req\.data\.' + entry.key + '\}');
-          resData = resData?.replaceAll(regexpReqData, entry.value.toString());
-        }
+      String resData = _templateData(template, exContext);
+      if (vars != null && vars.isNotEmpty) {
+        resData = _replaceVarObjs(resData, vars);
       }
 
-      if (template != null) {
-        String tData = _templateData(template, exContext)!;
-        resData = resData?.replaceAll(_regexpTemplate, tData);
-      }
+      resData = Template(
+        syntax: [_exSyntax],
+        value: resData,
+      ).process(context: exContext);
 
-      Map<String, dynamic>? templates = route['templates'];
-      if (templates != null) {
-        for (var entry in templates.entries) {
-          Map<String, dynamic> template = entry.value;
-          String tData = _templateData(template, exContext)!;
-          RegExp regexpTemplate =
-              RegExp(r'"\$\{templates\.' + entry.key + '\}"');
-          resData = resData?.replaceAll(regexpTemplate, tData);
-        }
-      }
+      handler.resolve(Response(
+        data: resData,
+        requestOptions: options,
+        statusCode: statusCode,
+      ));
+      return;
+    }
 
-      if (vars != null) {
-        vars.entries.forEach((element) {
-            var vKey = element.key;
-            var vValue = element.value;
-            if (vValue is Iterable || vValue is Map) {
-              resData = resData?.replaceAll(RegExp(r'"\$\{' + vKey + '\}"'), json.encode(vValue));
-            }
-        });
+    String resData = json.encode(data);
 
-        var exTemplate = Template(
-          syntax: [_exSyntax],
-          value: resData!,
-        );
-        resData = exTemplate.process(context: exContext);
+    if (template != null) {
+      String tData = _templateData(template, exContext);
+      resData = resData.replaceAll(_regexpTemplate, tData);
+    }
+
+    Map<String, dynamic>? templates = route['templates'];
+    if (templates != null && templates.isNotEmpty) {
+      for (var entry in templates.entries) {
+        Map<String, dynamic> template = entry.value;
+        String tData = _templateData(template, exContext);
+        RegExp regexpTemplate = RegExp(r'"\$\{templates\.' + entry.key + '}"');
+        resData = resData.replaceAll(regexpTemplate, tData);
       }
     }
+
+    if (vars != null && vars.isNotEmpty) {
+      resData = _replaceVarObjs(resData, vars);
+    }
+
+    resData = Template(
+      syntax: [_exSyntax],
+      value: resData,
+    ).process(context: exContext);
 
     handler.resolve(Response(
       data: resData,
@@ -131,10 +144,26 @@ class MockInterceptor extends Interceptor {
     ));
   }
 
-  String? _templateData(Map<String, dynamic> template, Map<dynamic, dynamic> exContext) {
+  String _replaceVarObjs(String resData, Map<String, dynamic>? vars) {
+    if (vars == null || vars.isEmpty) {
+      return resData;
+    }
+    for (var element in vars.entries) {
+      var vKey = element.key;
+      var vValue = element.value;
+      if (vValue is Iterable || vValue is Map) {
+        resData = resData.replaceAll(
+            RegExp(r'"\$\{' + vKey + '\}"'), json.encode(vValue));
+      }
+    }
+    return resData;
+  }
+
+  String _templateData(
+      Map<String, dynamic> template, Map<String, dynamic> exContext) {
     var content = template['content'];
     if (content == null) {
-      return content;
+      return "{}";
     }
 
     int? size = template['size'];
@@ -146,9 +175,7 @@ class MockInterceptor extends Interceptor {
     );
 
     if (size == null) {
-      exContext.addAll({
-        'index': 0,
-      });
+      exContext.putIfAbsent('index', () => 0);
       return exTemplate.process(context: exContext);
     }
 

@@ -15,116 +15,142 @@ void main() async {
 
   dio.interceptors.add(MockInterceptor());
 
-  test('test object data', () async {
-    Response response = await dio.post("/api/login");
-    String json = response.data;
-    Map<String, dynamic> obj = jsonDecode(json);
-    expect(obj['success'], true);
-    expect(obj['code'], '0000');
-    expect(obj['result']['test'], 'test');
-  });
-
-  test('test empty data', () async {
-    Response response = await dio.post("/api/logout");
-    String json = response.data;
-    Map<String, dynamic> obj = jsonDecode(json);
-    expect(obj.isEmpty, true);
-    expect(obj['success'], null);
-  });
-
-  test('test list template', () async {
-    Response response = await dio.post("/api/template/list");
-    String json = response.data;
-    List<dynamic> list = jsonDecode(json);
-    expect(list.length, 100000);
-    expect(list.first['id'], 'test0');
-    expect(list.first['name'], 'name_0');
-    expect(list[3]['id'], 'test3');
-    expect(list[3]['name'], 'name_3');
-    expect(list.last['id'], 'test99999');
-    expect(list.last['name'], 'name_99999');
-  });
-
-  test('test data with template', () async {
-    Response response = await dio.post("/api/data/template");
-    String json = response.data;
-    Map<String, dynamic> data = jsonDecode(json);
-
-    expect(data['id'], 'yong-xin');
-    expect((data['listA'] as List).first['id'], 'test0');
-    expect((data['listA'] as List).first['name'], 'name_0');
-  });
-
-  test('test data2 with template', () async {
-    Response response = await dio.post("/api/data/template2");
-    String json = response.data;
-    Map<String, dynamic> data = jsonDecode(json);
-
-    expect(data['id'], 'yong-xin');
-    expect((data['listA'] as List).first['id'], 'test0');
-    expect((data['listA'] as List).first['name'], 'name_0');
-    expect((data['field2']['listB'] as List).first['id'], 'test0');
-  });
-
-  test('test no content template', () async {
-    Response response = await dio.post("/api/template/nocontent");
-    String? json = response.data;
-    expect(json, null);
-  });
-
-  test('test no size template', () async {
-    Response response = await dio.post("/api/template/nosize");
-    String json = response.data;
-    Map<String, dynamic> obj = jsonDecode(json);
-    expect(obj['id'], "test0");
-    expect(obj['name'], "name_0");
-  });
-
-  test('test data with templates', () async {
-    Response response = await dio.post("/api/data/templates");
-    String json = response.data;
-    Map<String, dynamic> data = jsonDecode(json);
-
-    expect(data['id'], 'yong-xin');
-    expect((data['listA'] as List).first['id'], 'test0');
-    expect((data['listA'] as List).first['name'], 'name_0');
-    expect((data['field']['listB'] as List).first['id'], 'test20');
-    expect((data['field']['listB'] as List).first['name'], 'name2_0');
-  });
-
-  test('test data with req param', () async {
-    Response response = await dio.post("/api/data/req-param", data: {
-      "name": 'Mercury',
-      "name2": 'Ming',
+  group('Test basic usages', () {
+    test('test data usage', () async {
+      Response response = await dio.post("/api/basic/data");
+      String json = response.data;
+      Map<String, dynamic> obj = jsonDecode(json);
+      expect(obj['success'], true);
+      expect(obj['code'], '0000');
+      expect(obj['result']['test'], 'test');
     });
-    String json = response.data;
-    Map<String, dynamic> data = jsonDecode(json);
 
-    expect(data['id'], 'yong-xin');
-    expect(data['desc'], 'Hi, Mercury, I am Ming');
+    test('test data usage with empty data', () async {
+      Response response = await dio.post("/api/basic/data/empty");
+      String json = response.data;
+      Map<String, dynamic> obj = jsonDecode(json);
+      expect(obj.isEmpty, true);
+      expect(obj['success'], null);
+    });
   });
 
-  test('test template with vars', () async {
-    Response response = await dio.post("/api/data/vars");
-    String json = response.data;
-    Map<String, dynamic> data = jsonDecode(json);
-
-    expect(data['id'], 'yong-xin');
-    expect(data['arry'], [
-      "May",
-      "YongXin",
-      "John"
-    ]);
-    expect(data['objA'], {
-      "name": "objName"
+  group('Test template usages', () {
+    test('test template usage without data block', () async {
+      Response response = await dio.post("/api/template/without-data-block");
+      String json = response.data;
+      List<dynamic> list = jsonDecode(json);
+      expect(list.length, 100000);
+      expect(list.first['id'], 'test0');
+      expect(list.first['name'], 'name_0');
+      expect(list[3]['id'], 'test3');
+      expect(list[3]['name'], 'name_3');
+      expect(list.last['id'], 'test99999');
+      expect(list.last['name'], 'name_99999');
     });
-    expect((data['listA'] as List).first['id'], 'test0');
-    expect((data['listA'] as List).first['name'], 'name_0');
-    expect((data['listA'] as List).first['group'], 'g_May');
-    expect((data['listA'] as List).elementAt(1)['group'], 'g_YongXin');
-    expect((data['listA'] as List).elementAt(2)['group'], 'g_John');
-    expect((data['listA'] as List).last['group'], 'g_May');
-    expect((data['field']['listB'] as List).first['id'], 'test20');
-    expect((data['field']['listB'] as List).first['name'], 'name2_0');
+
+    test('test template usage without data block, no content', () async {
+      Response response =
+          await dio.post("/api/template/without-data-block/no-content");
+      String? json = response.data;
+
+      expect(json, isNot(null));
+      Map<String, dynamic> data = jsonDecode(json!);
+      expect(data.isEmpty, true);
+    });
+
+    test('test template usage without data block, no size', () async {
+      Response response =
+          await dio.post("/api/template/without-data-block/no-size");
+      String json = response.data;
+      Map<String, dynamic> obj = jsonDecode(json);
+      expect(obj['id'], "test0");
+      expect(obj['name'], "name_0");
+    });
+
+    test('test template usage with data block', () async {
+      Response response = await dio.post("/api/template/with-data-block");
+      String json = response.data;
+      Map<String, dynamic> data = jsonDecode(json);
+
+      expect(data['id'], 'yong-xin');
+      expect((data['listA'] as List).first['id'], 'test0');
+      expect((data['listA'] as List).first['name'], 'name_0');
+    });
+
+    test('test template usage with data block ex2', () async {
+      Response response = await dio.post("/api/template/with-data-block/ex2");
+      String json = response.data;
+      Map<String, dynamic> data = jsonDecode(json);
+
+      expect(data['id'], 'yong-xin');
+      expect((data['listA'] as List).first['id'], 'test0');
+      expect((data['listA'] as List).first['name'], 'name_0');
+      expect((data['field2']['listB'] as List).first['id'], 'test0');
+    });
+  });
+
+  group('Test templates usages', () {
+    test('test templates usage, ex1', () async {
+      Response response = await dio.post("/api/templates/ex1");
+      String json = response.data;
+      Map<String, dynamic> data = jsonDecode(json);
+
+      expect(data['id'], 'yong-xin');
+      expect((data['listA'] as List).first['id'], 'test0');
+      expect((data['listA'] as List).first['name'], 'name_0');
+      expect((data['field']['listB'] as List).first['id'], 'test20');
+      expect((data['field']['listB'] as List).first['name'], 'name2_0');
+    });
+  });
+
+  group('Test expression usages', () {
+    test('test data with req param', () async {
+      Response response = await dio.post("/api/expression/req-data", data: {
+        "name": 'Mercury',
+        "name2": 'Ming',
+      });
+      String json = response.data;
+      Map<String, dynamic> data = jsonDecode(json);
+
+      expect(data['id'], 'yong-xin');
+      expect(data['desc'], 'Hi Mercury, I am Ming_varSuffix');
+      expect(data['desc2'], 'test header, application/json; charset=utf-8');
+    });
+
+    test('test templates with vars', () async {
+      Response response =
+          await dio.post("/api/expression/vars", data: {"name": 'Mercury'});
+      String json = response.data;
+      Map<String, dynamic> data = jsonDecode(json);
+
+      expect(data['id'], 'yong-xin');
+      expect(data['arry'], ["May", "YongXin", "John"]);
+      expect(data['objA'], {"name": "objName"});
+      expect((data['listA'] as List).first['id'], 'test0');
+      expect((data['listA'] as List).first['name'], 'name_0');
+      expect((data['listA'] as List).first['group'], 'g_May');
+      expect((data['listA'] as List).elementAt(1)['group'], 'g_YongXin');
+      expect((data['listA'] as List).elementAt(2)['group'], 'g_John');
+      expect((data['listA'] as List).last['group'], 'g_May');
+      expect((data['listA'] as List).last['req-data-name'], 'test_Mercury');
+      expect((data['field']['listB'] as List).first['id'], 'test20');
+      expect((data['field']['listB'] as List).first['name'], 'name2_0');
+    });
+
+    test('test template with vars, template example', () async {
+      Response response = await dio
+          .post("/api/expression/vars/template-ex", data: {"name": 'Mercury'});
+      String json = response.data;
+      Map<String, dynamic> data = jsonDecode(json);
+
+      expect(data['id'], 'yong-xin');
+      expect((data['listA'] as List).first['id'], 'test0');
+      expect((data['listA'] as List).first['name'], 'name_0');
+      expect((data['listA'] as List).first['group'], 'g_May');
+      expect((data['listA'] as List).elementAt(1)['group'], 'g_YongXin');
+      expect((data['listA'] as List).elementAt(2)['group'], 'g_John');
+      expect((data['listA'] as List).last['group'], 'g_May');
+      expect((data['listA'] as List).last['req-data-name'], 'test_a');
+    });
   });
 }

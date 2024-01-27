@@ -1,6 +1,6 @@
 [
   {
-    "path": "/api/login",
+    "path": "/api/basic/data",
     "method": "POST",
     "statusCode": 200,
     "data": {
@@ -12,13 +12,13 @@
     }
   },
   {
-    "path": "/api/logout",
+    "path": "/api/basic/data/empty",
     "method": "POST",
     "statusCode": 200,
     "data": {}
   },
   {
-    "path": "/api/template/list",
+    "path": "/api/template/without-data-block",
     "method": "POST",
     "statusCode": 200,
     "template": {
@@ -30,7 +30,26 @@
     }
   },
   {
-    "path": "/api/data/template",
+    "path": "/api/template/without-data-block/no-content",
+    "method": "POST",
+    "statusCode": 200,
+    "template": {
+      "size": 1000
+    }
+  },
+  {
+    "path": "/api/template/without-data-block/no-size",
+    "method": "POST",
+    "statusCode": 200,
+    "template": {
+      "content": {
+        "id": "test${index}",
+        "name": "name_${index}"
+      }
+    }
+  },
+  {
+    "path": "/api/template/with-data-block",
     "method": "POST",
     "statusCode": 200,
     "data": {
@@ -46,7 +65,7 @@
     }
   },
   {
-    "path": "/api/data/template2",
+    "path": "/api/template/with-data-block/ex2",
     "method": "POST",
     "statusCode": 200,
     "data": {
@@ -65,26 +84,7 @@
     }
   },
   {
-    "path": "/api/template/nocontent",
-    "method": "POST",
-    "statusCode": 200,
-    "template": {
-      "size": 1000
-    }
-  },
-  {
-    "path": "/api/template/nosize",
-    "method": "POST",
-    "statusCode": 200,
-    "template": {
-      "content": {
-        "id": "test${index}",
-        "name": "name_${index}"
-      }
-    }
-  },
-  {
-    "path": "/api/data/templates",
+    "path": "/api/templates/ex1",
     "method": "POST",
     "statusCode": 200,
     "data": {
@@ -112,16 +112,17 @@
     }
   },
   {
-    "path": "/api/data/req-param",
+    "path": "/api/expression/req-data",
     "method": "POST",
     "statusCode": 200,
     "data": {
       "id": "yong-xin",
-      "desc": "Hi, ${req.data.name}, I am ${req.data.name2}"
+      "desc": "Hi ${req['data']['name']}, I am ${req['data']['name2'] + '_varSuffix'}",
+      "desc2": "test header, ${req['headers']['content-type']}"
     }
   },
   {
-    "path": "/api/data/vars",
+    "path": "/api/expression/vars",
     "method": "POST",
     "statusCode": 200,
     "data": {
@@ -149,8 +150,9 @@
         "size": 1000,
         "content": {
           "id": "test${index}",
-          "group": "g_${groups.elementAt(index%3)}",
-          "name": "name_${index}"
+          "group": "g_${groups[index%3]}",
+          "name": "name_${index}",
+          "req-data-name": "test_${req['data']['name']}"
         }
       },
       "name2": {
@@ -159,6 +161,35 @@
           "id": "test2${index}",
           "name": "name2_${index}"
         }
+      }
+    }
+  },
+  {
+    "path": "/api/expression/vars/template-ex",
+    "method": "POST",
+    "statusCode": 200,
+    "data": {
+      "id": "yong-xin",
+      "listA": "${template}"
+    },
+    "vars": {
+      "n": 5,
+      "groups": [
+        "May",
+        "YongXin",
+        "John"
+      ],
+      "obj": {
+        "name": "objName"
+      }
+    },
+    "template": {
+      "size": 1000,
+      "content": {
+        "id": "test${index}",
+        "group": "g_${groups[index%3]}",
+        "name": "name_${index}",
+        "req-data-name": "test_${(req['data']['name'].contains('Mercury')? 'a':'b')}"
       }
     }
   }

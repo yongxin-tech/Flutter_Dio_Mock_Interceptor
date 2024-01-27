@@ -17,7 +17,7 @@ The widget was only tested on following environment,
 * Install: 
   ```yaml
   dev_dependencies:
-	  dio_mock_interceptor: ^1.4.0
+	  dio_mock_interceptor: ^2.0.0
   ```
 
 * Create a <code>mock</code> folder in your project, add json files to mock http responses, 
@@ -26,23 +26,23 @@ The widget was only tested on following environment,
   ```json
   [
 	  {
-      "path": "/api/login",
+      "path": "/api/basic/data",
       "method": "POST",
       "statusCode": 200,
       "data": {
         "success": true,
         "code": "0000",
-		    "result": {
-			    "test": "test"
-		    }
-	    }
-	  },
-	  {
-      "path": "/api/logout",
+        "result": {
+            "test": "test"
+        }
+      }
+    },
+    {
+      "path": "/api/basic/data/empty",
       "method": "POST",
       "statusCode": 200,
       "data": {}
-	  }
+    }
   ]
   ```
   
@@ -71,26 +71,11 @@ The widget was only tested on following environment,
   Map<String, dynamic> result = data['result']; // result['test'] = 'test'
   ```
 
-* EL/req example:
-  ```json
-  [
-    {
-      "path": "/api/data/req-param",
-      "method": "POST",
-      "statusCode": 200,
-      "data": {
-        "id": "yong-xin",
-        "desc": "Hi, ${req.data.name}, I am ${req.data.name2}"
-      }
-    }
-  ]
-  ```
-
 * Template example:
   ```json
   [
 	  {
-      "path": "/api/template/list",
+      "path": "/api/template/without-data-block",
       "method": "POST",
       "statusCode": 200,
       "template": {
@@ -102,7 +87,7 @@ The widget was only tested on following environment,
       }
     },
     {
-      "path": "/api/data/template",
+      "path": "/api/template/with-data-block",
       "method": "POST",
       "statusCode": 200,
       "data": {
@@ -118,7 +103,7 @@ The widget was only tested on following environment,
       }
     },
     {
-      "path": "/api/data/template2",
+      "path": "/api/template/with-data-block/ex2",
       "method": "POST",
       "statusCode": 200,
       "data": {
@@ -137,7 +122,7 @@ The widget was only tested on following environment,
       }
     },
     {
-      "path": "/api/data/templates",
+      "path": "/api/templates/ex1",
       "method": "POST",
       "statusCode": 200,
       "data": {
@@ -166,12 +151,21 @@ The widget was only tested on following environment,
     }
   ]
   ```
-
-* Vars example:
+* Expression example:
   ```json
   [
-	  {
-      "path": "/api/data/vars",
+    {
+      "path": "/api/expression/req-data",
+      "method": "POST",
+      "statusCode": 200,
+      "data": {
+        "id": "yong-xin",
+        "desc": "Hi ${req['data']['name']}, I am ${req['data']['name2'] + '_varSuffix'}",
+        "desc2": "test header, ${req['headers']['content-type']}"
+      }
+    },
+    {
+      "path": "/api/expression/vars",
       "method": "POST",
       "statusCode": 200,
       "data": {
@@ -199,8 +193,9 @@ The widget was only tested on following environment,
           "size": 1000,
           "content": {
             "id": "test${index}",
-            "group": "g_${groups.elementAt(index%3)}",
-            "name": "name_${index}"
+            "group": "g_${groups[index%3]}",
+            "name": "name_${index}",
+            "req-data-name": "test_${req['data']['name']}"
           }
         },
         "name2": {
@@ -209,6 +204,35 @@ The widget was only tested on following environment,
             "id": "test2${index}",
             "name": "name2_${index}"
           }
+        }
+      }
+    },
+    {
+      "path": "/api/expression/vars/template-ex",
+      "method": "POST",
+      "statusCode": 200,
+      "data": {
+        "id": "yong-xin",
+        "listA": "${template}"
+      },
+      "vars": {
+        "n": 5,
+        "groups": [
+          "May",
+          "YongXin",
+          "John"
+        ],
+        "obj": {
+          "name": "objName"
+        }
+      },
+      "template": {
+        "size": 1000,
+        "content": {
+          "id": "test${index}",
+          "group": "g_${groups[index%3]}",
+          "name": "name_${index}",
+          "req-data-name": "test_${(req['data']['name'].contains('Mercury')? 'a':'b')}"
         }
       }
     }
