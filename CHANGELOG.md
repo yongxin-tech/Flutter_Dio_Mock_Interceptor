@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.1.0 - 2024.01.28
+
+* Extend req usage
+
 ## 2.0.0+1 - 2024.01.27
 
 * Refine examples and docs

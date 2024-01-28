@@ -11,6 +11,7 @@ void main() async {
   Dio dio = Dio(BaseOptions(
     baseUrl: "https://demo.yong-xin.tech",
     headers: {"content-type": "application/json; charset=utf-8"},
+    // connectTimeout: const Duration(seconds: 5),
   ));
 
   dio.interceptors.add(MockInterceptor());
@@ -108,6 +109,8 @@ void main() async {
       Response response = await dio.post("/api/expression/req-data", data: {
         "name": 'Mercury',
         "name2": 'Ming',
+      }, queryParameters: {
+        "name3": 'Param',
       });
       String json = response.data;
       Map<String, dynamic> data = jsonDecode(json);
@@ -115,6 +118,23 @@ void main() async {
       expect(data['id'], 'yong-xin');
       expect(data['desc'], 'Hi Mercury, I am Ming_varSuffix');
       expect(data['desc2'], 'test header, application/json; charset=utf-8');
+      expect(data['desc3'], 'test queryParameter, Param');
+      expect(data['desc4'], 'test baseUrl, https://demo.yong-xin.tech');
+      expect(data['desc5'], 'test method, POST');
+      expect(data['desc6'], 'test path, /api/expression/req-data');
+      //expect(data['desc7'], 'test uri, https://demo.yong-xin.tech/api/expression/req-data?name3=Param');
+    });
+
+    test('test data with req param(form data)', () async {
+      Response response = await dio.post("/api/expression/req-data/form-data",
+          data: FormData.fromMap({
+            'name': 'dio',
+            'date': DateTime.october,
+          }));
+      String json = response.data;
+      Map<String, dynamic> data = jsonDecode(json);
+
+      expect(data['desc'], 'Hi dio, test date: 10');
     });
 
     test('test templates with vars', () async {

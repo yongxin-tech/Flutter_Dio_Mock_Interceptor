@@ -83,13 +83,29 @@ class MockInterceptor extends Interceptor {
         'req',
         () => {
               'headers': options.headers,
+              'queryParameters': options.queryParameters,
+              'baseUrl': options.baseUrl,
+              'method': options.method,
+              'path': options.path,
+              // 'uri': options.uri.,
+              // 'connectTimeout': options.connectTimeout
             });
 
-    if (options.data != null && options.data is Map) {
-      exContext.update('req', (value) {
-        value['data'] = options.data;
-        return value;
-      });
+    if (options.data != null) {
+      if (options.data is Map) {
+        exContext.update('req', (value) {
+          value['data'] = options.data;
+          return value;
+        });
+      }
+      if (options.data is FormData) {
+        List<MapEntry<String, String>> fields =
+            (options.data as FormData).fields;
+        exContext.update('req', (value) {
+          value['data'] = {for (var e in fields) e.key: e.value};
+          return value;
+        });
+      }
     }
 
     if (template != null && data == null) {

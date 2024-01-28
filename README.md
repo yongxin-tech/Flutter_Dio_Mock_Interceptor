@@ -17,7 +17,7 @@ The widget was only tested on following environment,
 * Install: 
   ```yaml
   dev_dependencies:
-	  dio_mock_interceptor: ^2.0.0+1
+	  dio_mock_interceptor: ^2.1.0
   ```
 
 * Create a <code>mock</code> folder in your project, add json files to mock http responses, 
@@ -161,7 +161,19 @@ The widget was only tested on following environment,
       "data": {
         "id": "yong-xin",
         "desc": "Hi ${req['data']['name']}, I am ${req['data']['name2'] + '_varSuffix'}",
-        "desc2": "test header, ${req['headers']['content-type']}"
+        "desc2": "test header, ${req['headers']['content-type']}",
+        "desc3": "test queryParameter, ${req['queryParameters']['name3']}",
+        "desc4": "test baseUrl, ${req['baseUrl']}",
+        "desc5": "test method, ${req['method']}",
+        "desc6": "test path, ${req['path']}"
+      }
+    },
+    {
+      "path": "/api/expression/req-data/form-data",
+      "method": "POST",
+      "statusCode": 200,
+      "data": {
+        "desc": "Hi ${req['data']['name']}, test date: ${req['data']['date']}"
       }
     },
     {
